@@ -1,0 +1,4 @@
+config.py
+gs_private_key.json
+
+*.pyc

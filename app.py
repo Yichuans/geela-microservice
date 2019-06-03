@@ -1,5 +1,6 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_restful import Resource, Api, reqparse
+from flask_bootstrap import Bootstrap
 import ee
 import urllib2 as urllib
 import json
@@ -7,16 +8,17 @@ from config import pptoken
 
 app = Flask(__name__)
 api = Api(app)
+Bootstrap(app)
 
-# GEE test
+# GEE service account
 service_account = 'gee-landcover@prototype-landcover-gee.iam.gserviceaccount.com'
 credentials = ee.ServiceAccountCredentials(service_account, './gs_private_key.json')
 ee.Initialize(credentials)
 
-# modis
+# Data collection
 modis = ee.ImageCollection('MODIS/006/MCD12Q1')
 
-# parser?
+# parser for in-built validation
 # parser = reqparse.RequestParser()
 
 # ----- Utility  -----
@@ -33,18 +35,27 @@ def get_pa_geojson(url):
     import ssl
     gcontext = ssl._create_unverified_context()
 
-    response = urllib.urlopen(url, context=gcontext)
-    geojson = json.loads(response.read())
-    
-    return geojson
+    try:
+        response = urllib.urlopen(url, context=gcontext)
+        geojson = json.loads(response.read())
+        return geojson
+
+    # AP: need to cath exact exception
+    except:
+        return
+
 
 # wrapper if only geometry in geojson
 def get_pa(wdpaid, token):
     url = get_ppnet_url(wdpaid, token)
     data = get_pa_geojson(url)
     
+    if not data:
+        return
+
     if 'protected_area' not in data.keys():
         raise Exception('no protected area in json')
+        
     else:
         data = data['protected_area']
         
@@ -107,28 +118,26 @@ class Metadata(Resource):
         return modis.getInfo()
 
 class Status(Resource):
-    def __init__(self):
-        self.status = 'MODIS land cover on GEE Okay'
-        self.modis = ee.ImageCollection('MODIS/006/MCD12Q1')
-
-        try:
-            self.modis.getInfo()
-        except:
-            self.status = 'Error'
-
     def get(self):
-        return {'status': self.status}
+        if modis:
+            return {'status': 'Okay'}
+        else:
+            return {'status': 'Error'}
 
 # ----- Controller -----
 
 @app.route('/')
-def hello_world():
-    return 'Welcome to the GEELA (Google Earth Engine Land cover API) microservice, under construction!'
+def index():
+    # return 'Welcome to the GEELA (Google Earth Engine Land cover API) microservice, under construction!'
+    return render_template('index.html')
 
 @app.route('/pa/<wdpaid>')
 def protected_area(wdpaid):
     geojson = get_pa(wdpaid, pptoken)
-    return str(landcover_composition(geojson, get_modis_lc_by_year(2015)))
+    if geojson:
+        return str(landcover_composition(geojson, get_modis_lc_by_year(2015)))
+    else:
+        return "No PA found"
 
 api.add_resource(Status, '/api/')
 api.add_resource(Metadata, '/api/metadata')

@@ -1,0 +1,49 @@
+{% extends "index.html" %}
+
+{% block content %}
+<h2>{{ pa_name }}</h2>
+
+<div id="mapid"></div>
+
+<dl>
+    {% for lc in lcs %}
+        <p style="font-size:12px"><div style="background-color:#{{ lc['palette'] }};display:inline-block;width:30px;height:12px"></div>
+        </p>
+
+        <p>
+            <dt>
+                {{ lc['name'] }}
+            </dt>
+            <dd>
+                {{ '{:,.2f}'.format(lc['amount']/1000000) }} square kilometers
+            </dd>
+        </p>
+        <hr>
+
+    {% endfor %}
+</dl>
+
+{% endblock %}
+
+
+{% block styles %}
+<style>
+#mapid { height: 480px; }
+</style>
+{{super()}}
+{% endblock %}
+
+
+{% block scripts %}
+{{super()}}
+<script> 
+
+var mymap = L.map('mapid').setView([120,20], 13);
+var geojson = L.geoJSON("{{geojson}}");
+
+L.tileLayer("{{url}}",
+).addTo(mymap);
+
+</script>
+
+{% endblock %}

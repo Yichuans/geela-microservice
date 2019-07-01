@@ -38,11 +38,18 @@
 {{super()}}
 <script> 
 
+// base map
 var mymap = L.map('mapid').setView([120,20], 13);
-var geojson = L.geoJSON("{{geojson}}");
 
 L.tileLayer("{{url}}",
 ).addTo(mymap);
+
+// load geojson
+// jinja escape |safe
+var geojsonFeature = JSON.parse('{{geojson |safe}}');
+var geojson = L.geoJSON(geojsonFeature).addTo(mymap);
+
+mymap.fitBounds(geojson.getBounds());
 
 </script>
 

@@ -5,23 +5,7 @@
 
 <div id="mapid"></div>
 
-<dl>
-    {% for stat in stats %}
-        <p style="font-size:12px"><div style="background-color:#{{ stat['palette'] }};display:inline-block;width:30px;height:12px"></div>
-        </p>
-
-        <p>
-            <dt>
-                {{ stat['name'] }}
-            </dt>
-            <dd>
-                {{ '{:,.2f}'.format(stat['amount']/1000000) }} square kilometers
-            </dd>
-        </p>
-        <hr>
-
-    {% endfor %}
-</dl>
+{% include 'stats.html' %}
 
 {% endblock %}
 

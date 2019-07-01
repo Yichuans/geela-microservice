@@ -123,13 +123,22 @@ def check_geojson(input_geojson):
     return True
 
 # ----- API -----
-
 class Statistics(Resource):
     def post(self):
         geojson = request.get_json()
 
         if check_geojson(geojson):
-            return landcover_composition(geojson, get_modis_lc_by_year(2015))
+            results = landcover_composition(geojson, get_modis_lc_by_year(2015))
+
+            # use result['class'] values as index to find name
+            lcs = [{
+                'lc_type': result['class'],
+                'name': lc1_vlookup['names'][result['class']-1],
+                'amount': result['sum'], 
+                'palette': lc1_vlookup['palette'][result['class']-1]} for result in results]
+
+            return lcs
+
         else:
             return {"error": "Bad geojson"}
 
@@ -150,7 +159,32 @@ def index():
     # return 'Welcome to the GEELA (Google Earth Engine Land cover API) microservice, under construction!'
     return render_template('index.html')
 
-# == demo page ==
+# == DEMO PAGES ==
+
+@app.route('/pa')
+# === DEMO 1: land cover from all PAs from PPNET ===
+def get_pa_list():
+    # get page
+    page = int(request.args.get('page'))
+
+    if not page:
+        page = 1
+    url = ppapi_pa_list_url(pptoken, page)
+
+    next_page = page + 1
+    last_page = page - 1
+
+    # get list
+    result = get_ppapi_json(url)
+
+    # if exist 
+    if result and 'protected_areas' in result.keys():
+        return render_template('pa_list.html', pas=result['protected_areas'], 
+        next_page=next_page, last_page=last_page)
+    
+    return None
+    # return str(url)
+
 @app.route('/pa/<wdpaid>')
 def protected_area(wdpaid):
     # web service to get PA json, including geometry
@@ -181,38 +215,12 @@ def protected_area(wdpaid):
         # AP: geojson format not well formed
         return render_template('pa.html', lcs=lcs, pa_name=pa_name, url=url, geojson=json.dumps(geojson))
 
-@app.route('/pa')
-# === DEMO 1: land cover from all PAs from PPNET ===
-def get_pa_list():
-    # get page
-    page = int(request.args.get('page'))
-
-    if not page:
-        page = 1
-    url = ppapi_pa_list_url(pptoken, page)
-
-    next_page = page + 1
-    last_page = page - 1
-
-    # get list
-    result = get_ppapi_json(url)
-
-    # if exist 
-    if result and 'protected_areas' in result.keys():
-        return render_template('pa_list.html', pas=result['protected_areas'], 
-        next_page=next_page, last_page=last_page)
-    
-    return None
-    # return str(url)
-
-def protected_area_index():
-    return 'index page for protected areas'
 
 # DEMO 2: land cover from an uploaded geometry
 def arbitary_geom():
     return ''
 
-# DEMO 3: land cover guess game
+# === DEMO 3: land cover guess game
 def guess_game():
     return ''
 

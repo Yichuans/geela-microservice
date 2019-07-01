@@ -25,17 +25,46 @@
 
    <script> 
         // base map
-        var mymap = L.map('mapid');
+        // var mymap = L.map('mapid');
+
+        var osmLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>',
+            thunLink = '<a href="http://thunderforest.com/">Thunderforest</a>';
         
-        var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(mymap);
+        var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            osmAttrib = '&copy; ' + osmLink + ' Contributors',
+            landUrl = 'http://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png',
+            thunAttrib = '&copy; '+osmLink+' Contributors & '+thunLink;
+
+        var osmMap = L.tileLayer(osmUrl, {attribution: osmAttrib}),
+            landMap = L.tileLayer(landUrl, {attribution: thunAttrib});
+
+		var baseLayers = {
+			"OSM Mapnik": osmMap,
+			"Landscape": landMap
+		};
+
+        var geojsonFeature = JSON.parse('{{geojson | safe}}');
+        var geojson = L.geoJSON(geojsonFeature)
+
+        var overLayers = {
+            'random box': geojson,
+        };
+
+        var mymap = L.map('mapid', {
+			    layers: [geojson, osmMap] // only add one!
+		    });
+
+
+		L.control.layers(baseLayers, overLayers).addTo(mymap);
+
+        mymap.fitBounds(geojson.getBounds());
+        
+        
+        // var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(mymap);
         
         // load geojson
         // jinja escape |safe
-        var geojsonFeature = JSON.parse('{{geojson | safe}}');
-        var geojson = L.geoJSON(geojsonFeature).addTo(mymap);
-        
-        mymap.fitBounds(geojson.getBounds());
-        
+
         </script>
         
 {{super()}}

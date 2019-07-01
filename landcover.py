@@ -161,14 +161,22 @@ def index():
 
 # == DEMO PAGES ==
 
+@app.route('/demo')
+def demo_index():
+    return render_template('demo_index.html')
+
 @app.route('/pa')
 # === DEMO 1: land cover from all PAs from PPNET ===
 def get_pa_list():
     # get page
-    page = int(request.args.get('page'))
+    page = request.args.get('page')
 
     if not page:
         page = 1
+    
+    else:
+        page = int(page)
+        
     url = ppapi_pa_list_url(pptoken, page)
 
     next_page = page + 1

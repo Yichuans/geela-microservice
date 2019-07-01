@@ -26,31 +26,38 @@
 {% endblock %}
 
 
-{% block styles %}
-<style>
-#mapid { height: 480px; }
-</style>
+
+{% block scripts %}
+ <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+   integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+   crossorigin=""></script>
+   <script> 
+
+        // base map
+        var mymap = L.map('mapid').setView([120,20], 13);
+        
+        L.tileLayer("{{url}}",
+        ).addTo(mymap);
+        
+        // load geojson
+        // jinja escape |safe
+        var geojsonFeature = JSON.parse('{{geojson |safe}}');
+        var geojson = L.geoJSON(geojsonFeature).addTo(mymap);
+        
+        mymap.fitBounds(geojson.getBounds());
+        
+        </script>
+        
 {{super()}}
 {% endblock %}
 
-
-{% block scripts %}
+{% block styles %}
 {{super()}}
-<script> 
+<style>
+        #mapid { height: 480px; }
+</style>
 
-// base map
-var mymap = L.map('mapid').setView([120,20], 13);
-
-L.tileLayer("{{url}}",
-).addTo(mymap);
-
-// load geojson
-// jinja escape |safe
-var geojsonFeature = JSON.parse('{{geojson |safe}}');
-var geojson = L.geoJSON(geojsonFeature).addTo(mymap);
-
-mymap.fitBounds(geojson.getBounds());
-
-</script>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+crossorigin=""/>
 {% endblock %}

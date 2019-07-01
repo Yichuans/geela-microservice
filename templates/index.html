@@ -1,5 +1,5 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}GEELA{% endblock %}
+{% block title %}Land cover micro API{% endblock %}
 <meta charset="utf-8"/>
 {% block head %}
 {{super()}}
@@ -12,23 +12,14 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Welcome to GEELA</h1>
+  <h1>Welcome to Google Earth Engine Land cover micro API</h1>
+  <ul>
+    <li><a title='api page' href=''>API page</a></li>
+    <li><a title='demo page' href=' {{ url_for("demo_index")}}'>demo</a></li>
+  </ul>
 {% endblock %}
 
 
-{% block scripts %}
- <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-   integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-   crossorigin=""></script>
-   {{super()}}
-{% endblock %}
-
-{% block styles %}
-{{super()}}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-crossorigin=""/>
-{% endblock %}
 
 {% block html_attribs %} lang="en"{% endblock %}
 

@@ -4,6 +4,7 @@ flask-script==2.0.6
 flask-sqlalchemy
 flask-restful
 flask>=1.0.2
+requests
 gunicorn>=19.7.1
 psycopg2==2.7.5
 sqlalchemy-utils

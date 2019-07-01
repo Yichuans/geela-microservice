@@ -1,3 +1,5 @@
+import random
+import requests
 from flask import Flask, request, render_template
 from flask_restful import Resource, Api, reqparse
 from flask_bootstrap import Bootstrap
@@ -5,6 +7,7 @@ import ee
 import urllib2 as urllib
 import json
 from config import pptoken
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -123,6 +126,17 @@ def check_geojson(input_geojson):
     return True
 
 # ----- API -----
+def _format_results(results):
+    # use result['class'] values as index to find name
+
+    stats = [{
+    'lc_type': result['class'],
+    'name': lc1_vlookup['names'][result['class']-1],
+    'amount': result['sum'], 
+    'palette': lc1_vlookup['palette'][result['class']-1]} for result in results]
+
+    return stats
+
 class Statistics(Resource):
     def post(self):
         geojson = request.get_json()
@@ -130,14 +144,9 @@ class Statistics(Resource):
         if check_geojson(geojson):
             results = landcover_composition(geojson, get_modis_lc_by_year(2015))
 
-            # use result['class'] values as index to find name
-            lcs = [{
-                'lc_type': result['class'],
-                'name': lc1_vlookup['names'][result['class']-1],
-                'amount': result['sum'], 
-                'palette': lc1_vlookup['palette'][result['class']-1]} for result in results]
+            stats = _format_results(results)
 
-            return lcs
+            return stats
 
         else:
             return {"error": "Bad geojson"}
@@ -216,12 +225,10 @@ def protected_area(wdpaid):
         results = landcover_composition(geojson, get_modis_lc_by_year(2015))
 
         # use result['class'] values as index to find name
-        lcs = [{'name': lc1_vlookup['names'][result['class']-1],
-         'amount': result['sum'], 
-         'palette': lc1_vlookup['palette'][result['class']-1]} for result in results]
+        stats = _format_results(results)
 
         # AP: geojson format not well formed
-        return render_template('pa.html', lcs=lcs, pa_name=pa_name, url=url, geojson=json.dumps(geojson))
+        return render_template('pa.html', stats=stats, pa_name=pa_name, url=url, geojson=json.dumps(geojson))
 
 
 # DEMO 2: land cover from an uploaded geometry
@@ -229,8 +236,51 @@ def arbitary_geom():
     return ''
 
 # === DEMO 3: land cover guess game
+@app.route('/random')
 def guess_game():
-    return ''
+    # random geojson
+    random_geojson = geojson_generator(random_xy_generator())
+
+    # call api
+    url = 'http://localhost:5000/api/stats'
+    response = requests.post(url, json=random_geojson)
+    stats = response.json()
+
+    # options
+    options = zip(lc1_vlookup['values'], lc1_vlookup['names'])
+
+    # renders
+    return render_template('random.html', geojson=json.dumps(random_geojson), stats=stats, options=options)
+
+
+# this function currently generates (x,y) in England
+def random_xy_generator():
+    lats = [50.951356, 53.30052]
+    lons = [-3.509831, 0.15538]
+
+    return (random.uniform(*lats), random.uniform(*lons))
+
+def geojson_generator(pt, offset=0.001):
+    # offset 0.001 translate roughly to 100 m at equator - 200 m is roughly the resolution of modis
+    lat, lon = pt
+    poly = dict()
+    poly['type'] = 'Feature'
+    poly['geometry'] = {
+        'type': 'Polygon',
+        'coordinates': [
+            [[lon-offset, lat-offset], [lon+offset, lat-offset], [lon+offset, lat+offset], [lon-offset, lat+offset], [lon-offset, lat-offset]]
+        ]
+    }
+    poly['properties'] = {
+        "fill-opacity": 0.7,
+        "stroke-width": 0.05,
+        "stroke": "#40541b",
+        "fill": "#83ad35",
+        "marker-color": "#2B3146"
+    }
+
+    # dictionary output, needs `json.dumps() to convert to string for viewing`
+    return poly
 
 # DEMO 4: land cover image for up uploaded geometry
 def land_cover_image():

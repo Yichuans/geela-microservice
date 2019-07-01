@@ -1,47 +1,37 @@
 {% extends "index.html" %}
 
 {% block content %}
-<h2>{{ pa_name }}</h2>
-
 <div id="mapid"></div>
+<div id="guess">
 
-<dl>
-    {% for stat in stats %}
-        <p style="font-size:12px"><div style="background-color:#{{ stat['palette'] }};display:inline-block;width:30px;height:12px"></div>
-        </p>
+    {% include 'stats.html' %}
 
-        <p>
-            <dt>
-                {{ stat['name'] }}
-            </dt>
-            <dd>
-                {{ '{:,.2f}'.format(stat['amount']/1000000) }} square kilometers
-            </dd>
-        </p>
-        <hr>
+</div>
+<div id="selection">
+    <select class=''>
+        <option selected>- What do you think is the land cover -</option>
+        {% for option in options %}
+        <option value="{{ option[0] }}"> {{ option[1] }}</option>
+        {% endfor %}
 
-    {% endfor %}
-</dl>
-
+    </select>
+</div>
 {% endblock %}
-
-
 
 {% block scripts %}
  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
    integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
    crossorigin=""></script>
-   <script> 
 
+   <script> 
         // base map
         var mymap = L.map('mapid');
         
-        L.tileLayer("{{url}}",
-        ).addTo(mymap);
+        var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(mymap);
         
         // load geojson
         // jinja escape |safe
-        var geojsonFeature = JSON.parse('{{geojson |safe}}');
+        var geojsonFeature = JSON.parse('{{geojson | safe}}');
         var geojson = L.geoJSON(geojsonFeature).addTo(mymap);
         
         mymap.fitBounds(geojson.getBounds());
@@ -54,7 +44,7 @@
 {% block styles %}
 {{super()}}
 <style>
-        #mapid { height: 480px; }
+    #mapid { height: 480px; }
 </style>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"

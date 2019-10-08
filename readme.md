@@ -46,7 +46,13 @@ Install libraries and run the Flask app.
 
 ```python
 pip install -r requirements.txt
-python app.py
+python landcover.py
+```
+
+Existing environment `flask27` can be activated by
+
+```bash
+conda activate flask27
 ```
 
 Ask me for `gs_private_key.json` (earth engine service account private key) and `config.py` (pp api token)

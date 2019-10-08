@@ -21,20 +21,32 @@ ee.Initialize(credentials)
 # Data collection
 modis = ee.ImageCollection('MODIS/006/MCD12Q1')
 
+# discontinued data; don't use
+# modis_meta = ee.ImageCollection('MODIS/051/MCD12Q1')
+
 # create lookup for lc name, value and colour palette
 metadata = modis.getInfo()
-metadata_vlookup = dict()
+# metadata_vlookup = dict()
 
-for lc_type in ['LC_Type1', 'LC_Type2', 'LC_Type3', 'LC_Type4', 'LC_Type5']:
-    metadata_vlookup[lc_type] = {
-        'names':metadata['features'][0]['properties'][lc_type+'_class_names'],
-        'values':metadata['features'][0]['properties'][lc_type+'_class_values'],
-        'palette':metadata['features'][0]['properties'][lc_type+'_class_palette'],
-    }
+# # metadata changed in the data catalogue
+# for lc_type in ['LC_Type_1', 'LC_Type_2', 'LC_Type_3', 'LC_Type_4', 'LC_Type_5']:
+#     metadata_vlookup[lc_type] = {
+#         'names':metadata['features'][0]['properties'][lc_type+'_class_names'],
+#         'values':metadata['features'][0]['properties'][lc_type+'_class_values'],
+#         'palette':metadata['features'][0]['properties'][lc_type+'_class_palette'],
+#     }
 
-lc1_vlookup = metadata_vlookup['LC_Type1']
+# lc1_vlookup = metadata_vlookup['LC_Type_1']
 
-# default land cover
+meta_lc1 = {u'Color': u'05450a', u'Description': u'Evergreen Needleleaf Forests: dominated by evergreen conifer trees (canopy >2m). Tree cover >60%.', u'Value': u'1'}, {u'Color': u'086a10', u'Description': u'Evergreen Broadleaf Forests: dominated by evergreen broadleaf and palmate trees (canopy >2m). Tree cover >60%.', u'Value': u'2'}, {u'Color': u'54a708', u'Description': u'Deciduous Needleleaf Forests: dominated by deciduous needleleaf (larch) trees (canopy >2m). Tree cover >60%.', u'Value': u'3'}, {u'Color': u'78d203', u'Description': u'Deciduous Broadleaf Forests: dominated by deciduous broadleaf trees (canopy >2m). Tree cover >60%.', u'Value': u'4'}, {u'Color': u'009900', u'Description': u'Mixed Forests: dominated by neither deciduous nor evergreen (40-60% of each) tree type (canopy >2m). Tree cover >60%.', u'Value': u'5'}, {u'Color': u'c6b044', u'Description': u'Closed Shrublands: dominated by woody perennials (1-2m height) >60% cover.', u'Value': u'6'}, {u'Color': u'dcd159', u'Description': u'Open Shrublands: dominated by woody perennials (1-2m height) 10-60% cover.', u'Value': u'7'}, {u'Color': u'dade48', u'Description': u'Woody Savannas: tree cover 30-60% (canopy >2m).', u'Value': u'8'}, {u'Color': u'fbff13', u'Description': u'Savannas: tree cover 10-30% (canopy >2m).', u'Value': u'9'}, {u'Color': u'b6ff05', u'Description': u'Grasslands: dominated by herbaceous annuals (<2m).', u'Value': u'10'}, {u'Color': u'27ff87', u'Description': u'Permanent Wetlands: permanently inundated lands with 30-60% water cover and >10% vegetated cover.', u'Value': u'11'}, {u'Color': u'c24f44', u'Description': u'Croplands: at least 60% of area is cultivated cropland.', u'Value': u'12'}, {u'Color': u'a5a5a5', u'Description': u'Urban and Built-up Lands: at least 30% impervious surface area including building materials, asphalt and vehicles.', u'Value': u'13'}, {u'Color': u'ff6d4c', u'Description': u'Cropland/Natural Vegetation Mosaics: mosaics of small-scale cultivation 40-60% with natural tree, shrub, or herbaceous vegetation.', u'Value': u'14'}, {u'Color': u'69fff8', u'Description': u'Permanent Snow and Ice: at least 60% of area is covered by snow and ice for at least 10 months of the year.', u'Value': u'15'}, {u'Color': u'f9ffa4', u'Description': u'Barren: at least 60% of area is non-vegetated barren (sand, rock, soil) areas with less than 10% vegetation.', u'Value': u'16'}, {u'Color': u'1c0dff', u'Description': u'Water Bodies: at least 60% of area is covered by permanent water bodies.', u'Value': u'17'}
+
+lc1_vlookup = {
+    'names': [str(each['Description']) for each in meta_lc1],
+    'values': [str(each['Value']) for each in meta_lc1],
+    'palette': [str(each['Color']) for each in meta_lc1],
+}
+
+# default land cover; needs to be refactored if in the future other land cover types are required
 LC_TYPE = 'LC_Type1'
 
 # ----- Utility  -----
@@ -86,11 +98,12 @@ def get_pa_json(wdpaid, token):
 def get_modis_lc_by_year(year, classification=LC_TYPE):
     # returns a ee.image based on year and classification
 
-    if year not in range(2000, 2017):
-        raise Exception('Year must be in between 2000 and 2016')
+    if year not in range(2002, 2018):
+        raise Exception('Year must be in between 2000 and 2018')
         
     # internal ee.Image 'system:time_start' 'system:time_end' in miliseconds
-    landcover_image = modis.filterDate(str(year)+'-01-01', str(year)+'-12-31').first()
+    # all timestamps are '20xx-01-01'
+    landcover_image = modis.filterDate(str(year)+'-01-01', str(year)+'-01-02').first()
 
     return landcover_image.select(classification)
 

@@ -108,7 +108,7 @@ def get_modis_lc_by_year(year, classification=LC_TYPE):
     return landcover_image.select(classification)
 
 def get_tile_layer_url(ee_image_object):
-    map_id = ee.Image(ee_image_object).getMapId()
+    map_id = ee.Image(ee_image_object).getMapId({'min':1.0, 'max': 17.0, 'palette':lc1_vlookup['palette']})
     tile_url_template = "https://earthengine.googleapis.com/map/{mapid}/{{z}}/{{x}}/{{y}}?token={token}"
     return tile_url_template.format(**map_id)
 

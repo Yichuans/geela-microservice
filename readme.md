@@ -4,7 +4,7 @@ A proof-of-concept micro API, implemented with Python, Flask, and the Google Ear
 
 The idea is to try a different approach towards making knowledge product that is powerful, useful but at the same time scalable, less need for maintenance and can be re-purposed, built-upon and further integrated into other products. More specifically, this would allow: 1) easy engineering of products 2) shifts towards a valued added model, compared to the traditional data reselling model.
 
-## quickstart
+## Quick start docker
 
 Create the docker image from the current folder
 ```bash
@@ -17,6 +17,25 @@ Mount the volume with source code, and run the container
 docker run --name "lc" -it -p 5000:5000 -v ~/Documents/git/land-cover-micro-api:/app lc:1.0
 ```
 
+## Quick start
+
+It is currently a one file application.
+
+Install libraries and run the Flask app.
+
+```python
+pip install -r requirements.txt
+python landcover.py
+```
+
+Ask me for `gs_private_key.json` (earth engine service account private key) and `config.py` (pp api token)
+
+On my own computer, an existing conda environment `flask27` can be activated by
+
+```bash
+conda activate flask27
+```
+
 ## done
 
 - `GET /api/status` status of the API
@@ -25,11 +44,11 @@ docker run --name "lc" -it -p 5000:5000 -v ~/Documents/git/land-cover-micro-api:
 
 - `GET /pa/{wdpaid}` stats of land
 
+- dockerise environment
+
 ## to-do list
 
 In no specific order
-
-- dockerise environment
 
 - check SSL when calling PPAPI
 
@@ -50,22 +69,3 @@ In no specific order
 - documentation
 
 - demos
-
-## get started
-
-It is currently a one file application.
-
-Install libraries and run the Flask app.
-
-```python
-pip install -r requirements.txt
-python landcover.py
-```
-
-Existing environment `flask27` can be activated by
-
-```bash
-conda activate flask27
-```
-
-Ask me for `gs_private_key.json` (earth engine service account private key) and `config.py` (pp api token)

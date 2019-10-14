@@ -1,12 +1,20 @@
 import random
 import requests
-from flask import Flask, request, render_template
-from flask_restful import Resource, Api, reqparse
-from flask_bootstrap import Bootstrap
 import ee
 import urllib2 as urllib
 import json
+
+from flask import Flask, request, render_template, redirect, url_for
+from flask_restful import Resource, Api, reqparse
+from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
 from config import Config
+
+from flask_wtf import FlaskForm
+from wtforms import StringField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 
@@ -14,6 +22,10 @@ app.config.from_object(Config)
 api = Api(app)
 Bootstrap(app)
 
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+# PP token
 pptoken = app.config['PPTOKEN']
 
 # GEE service account
@@ -252,8 +264,19 @@ def arbitary_geom():
     return ''
 
 # === DEMO 3: land cover guess game
-@app.route('/random')
+class YourName(FlaskForm):
+    name = StringField('name', validators=[DataRequired()])
+
+@app.route('/guess-game', methods=['GET','POST'])
 def guess_game():
+    form = YourName()
+    if request.method == 'POST' and form.validate_on_submit():
+        # return redirect(url_for('random_guess'))
+        return "HIthere"
+    return render_template('guess_game.html', form=form)
+
+@app.route('/random-guess')
+def random_guess():
     # random geojson
     random_geojson = geojson_generator(random_xy_generator())
 

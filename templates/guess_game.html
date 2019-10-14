@@ -1,0 +1,25 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Start guessing game{% endblock %}
+<meta charset="utf-8"/>
+{% block head %}
+{{super()}}
+
+{% endblock %}
+
+{% block navbar %}
+<div class="navbar">
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <h1>Guessing land cover</h1>
+  <form method='POST' action="">
+    {{ form.name.label }} {{form.name(size=30)}}
+    <input type="submit" value="start">
+    </form>
+</div>
+{% endblock %}
+
+{% block html_attribs %} lang="en"{% endblock %}
+

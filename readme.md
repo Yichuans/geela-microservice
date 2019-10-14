@@ -7,6 +7,7 @@ The idea is to try a different approach towards making knowledge product that is
 ## Quick start docker
 
 Create the docker image from the current folder
+
 ```bash
 docker build -t lc:1.0 .
 ```
@@ -16,6 +17,14 @@ Mount the volume with source code, and run the container
 ```bash
 docker run --name "lc" -it -p 5000:5000 -v ~/Documents/git/land-cover-micro-api:/app lc:1.0
 ```
+
+You can then use
+
+```bash
+docker start lc
+```
+
+to resume your docker container.
 
 ## Quick start
 

@@ -7,16 +7,18 @@
 {% endblock %}
 
 {% block navbar %}
-<div class="navbar navbar-fixed-top">
+<div class="navbar">
 </div>
 {% endblock %}
 
 {% block content %}
+<div class="container-fluid">
   <h1>Welcome to Google Earth Engine Land cover micro API</h1>
   <ul>
     <li><a title='api page' href=''>API page</a></li>
     <li><a title='demo page' href=' {{ url_for("demo_index")}}'>demo</a></li>
   </ul>
+</div>
 {% endblock %}
 
 

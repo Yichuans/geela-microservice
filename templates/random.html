@@ -1,20 +1,22 @@
 {% extends "index.html" %}
 
 {% block content %}
-<div id="mapid"></div>
-<div id="guess">
+<div class="container-fluid">
+    <div id="mapid"></div>
+    <div id="guess">
 
-    {% include 'stats.html' %}
+        {% include 'stats.html' %}
 
-</div>
-<div id="selection">
-    <select class=''>
-        <option selected>- What do you think is the land cover -</option>
-        {% for option in options %}
-        <option value="{{ option[0] }}"> {{ option[1] }}</option>
-        {% endfor %}
+    </div>
+    <div id="selection">
+        <select class=''>
+            <option selected>- What do you think is the land cover -</option>
+            {% for option in options %}
+            <option value="{{ option[0] }}"> {{ option[1] }}</option>
+            {% endfor %}
 
-    </select>
+        </select>
+    </div>
 </div>
 {% endblock %}
 
@@ -24,40 +26,39 @@
    crossorigin=""></script>
 
    <script> 
-        // base map
-        // var mymap = L.map('mapid');
+        var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    maxZoom: 19,
+	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
 
-        var osmLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>',
-            thunLink = '<a href="http://thunderforest.com/">Thunderforest</a>';
-        
-        var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            osmAttrib = '&copy; ' + osmLink + ' Contributors',
-            landUrl = 'http://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png',
-            thunAttrib = '&copy; '+osmLink+' Contributors & '+thunLink;
+        var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+        });
 
-        var osmMap = L.tileLayer(osmUrl, {attribution: osmAttrib}),
-            landMap = L.tileLayer(landUrl, {attribution: thunAttrib});
-
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
 		var baseLayers = {
-			"OSM Mapnik": osmMap,
-			"Landscape": landMap
+            "OSM Mapnik": OpenStreetMap_Mapnik,
+            "Esri_WorldTopoMap": Esri_WorldTopoMap,
+            "World Imagery": Esri_WorldImagery
 		};
 
         var geojsonFeature = JSON.parse('{{geojson | safe}}');
-        var geojson = L.geoJSON(geojsonFeature)
+        var geojson = L.geoJSON(geojsonFeature);
 
         var overLayers = {
             'random box': geojson,
         };
 
         var mymap = L.map('mapid', {
-			    layers: [geojson, osmMap] // only add one!
+			    layers: [geojson, OpenStreetMap_Mapnik] // only add one!
 		    });
 
-
-		L.control.layers(baseLayers, overLayers).addTo(mymap);
-
         mymap.fitBounds(geojson.getBounds());
+            
+        L.control.layers(baseLayers, overLayers).addTo(mymap);
+            
         
         
         // var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(mymap);

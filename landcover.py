@@ -6,16 +6,19 @@ from flask_bootstrap import Bootstrap
 import ee
 import urllib2 as urllib
 import json
-from config import pptoken
-
+from config import Config
 
 app = Flask(__name__)
+
+app.config.from_object(Config)
 api = Api(app)
 Bootstrap(app)
 
+pptoken = app.config['PPTOKEN']
+
 # GEE service account
-service_account = 'gee-landcover@prototype-landcover-gee.iam.gserviceaccount.com'
-credentials = ee.ServiceAccountCredentials(service_account, './gs_private_key.json')
+service_account = app.config['GEE_SERVICE']
+credentials = ee.ServiceAccountCredentials(service_account, app.config['GEE_KEY'])
 ee.Initialize(credentials)
 
 # Data collection

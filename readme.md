@@ -37,7 +37,7 @@ pip install -r requirements.txt
 python landcover.py
 ```
 
-Ask me for `gs_private_key.json` (earth engine service account private key) and `config.py` (pp api token)
+Ask me for `config.py`, where the GEE service and its key `gs_private_key.json` (earth engine service account private key) as well as the protected planet api token live.
 
 On my own computer, an existing conda environment `flask27` can be activated by
 

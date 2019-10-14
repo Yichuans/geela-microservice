@@ -4,6 +4,19 @@ A proof-of-concept micro API, implemented with Python, Flask, and the Google Ear
 
 The idea is to try a different approach towards making knowledge product that is powerful, useful but at the same time scalable, less need for maintenance and can be re-purposed, built-upon and further integrated into other products. More specifically, this would allow: 1) easy engineering of products 2) shifts towards a valued added model, compared to the traditional data reselling model.
 
+## quickstart
+
+Create the docker image from the current folder
+```bash
+docker build -t lc:1.0 .
+```
+
+Mount the volume with source code, and run the container
+
+```bash
+docker run --name "lc" -it -p 5000:5000 -v ~/Documents/git/land-cover-micro-api:/app lc:1.0
+```
+
 ## done
 
 - `GET /api/status` status of the API

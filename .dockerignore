@@ -1,0 +1,5 @@
+config.py
+gs_private_key.json
+.vscode
+
+*.pyc

@@ -78,3 +78,39 @@ In no specific order
 - documentation
 
 - demos
+
+## tips
+
+Run docker container in attach mode (to be able to see debug information)
+
+```bash
+docker start -a lc
+```
+
+Migrate and update database after schema change
+
+```bash
+export FLASK_APP=landcover.py
+flask db migrate
+flask db upgrade
+```
+
+Connect to a running docker container `lc`
+
+```bash
+docker exec -t lc bash
+ipython
+```
+
+Then in Python
+
+```python
+import landcover as lc
+```
+
+SQLAlchemy commands
+
+```python
+lc.Record.query.all()
+
+```

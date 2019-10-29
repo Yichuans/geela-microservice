@@ -287,18 +287,41 @@ def guess_game():
     # if request.method == 'POST' and form.validate_on_submit():
     # if request.method == 'POST' and form.validate():
     if request.method == 'POST':
-        return redirect(url_for('random_guess', name=form.name.data))
+        return redirect(url_for('random_guess', username=form.name.data))
         # return "HIthere"
     return render_template('guess_game.html', form=form)
 
-@app.route('/random-guess')
+@app.route('/random-guess', methods=['GET', 'POST'])
 def random_guess():
     # get page number
-    page = request.args.get('page') or 1
-    page = int(page)
+    # page = request.args.get('page') or 1
+    # page = int(page)
 
-    if page > 10:
-        return redirect(url_for('index'))
+    # a post message
+    if request.method == 'POST':
+        # return str()
+        username = request.values.get('username') or 'anonymous'
+        x = request.form.get('x')
+        y = request.form.get('y')
+        answer = request.form.get('landcover') or -1 # if no data is given - it's wrong
+        ref = request.form.get('ref')
+        page = int(request.form.get('page'))
+
+        record = Record(username=username, x=x, y=y, answer=answer, ref_modis_answer=ref)
+        db.session.add(record)
+        db.session.commit()
+
+        page += 1
+
+        if page > 10:
+            # complete
+            return redirect(url_for('index'))
+    # get
+    else:
+        page = 1
+    
+    # if page > 10:
+    #     return redirect(url_for('index'))
 
     # random geojson
     x, y = random_xy_generator()
@@ -312,32 +335,32 @@ def random_guess():
     # options
     options = zip(lc1_vlookup['values'], lc1_vlookup['names'])
 
-    # saving result
-    max_amount = max([stat['amount'] for stat in stats])
-
-
     # get user name
     username = request.args.get('username') or 'anonymous'
 
-    # no stats skip
+    # get ref data
     if not stats:
-        pass
+        # need to handle this? refresh?
+        lc_type = 0
 
     else:
+        # saving result
+        max_amount = max([stat['amount'] for stat in stats])
+
         for stat in stats:
             if stat['amount'] == max_amount:
                 lc_type = stat['lc_type']
-    
-        record = Record(username=username, x=x, y=y, answer=request.args.get('landcover'), ref_modis_answer=lc_type)
-        db.session.add(record)
-        db.session.commit()
-
-        # increment
-        page += 1
 
     # renders
-    return render_template('random.html', geojson=json.dumps(random_geojson), stats=stats, options=options, page=page, username=username)
-
+    return render_template('random.html', 
+    geojson=json.dumps(random_geojson), 
+    stats=stats, 
+    options=options, 
+    x=x,
+    y=y,
+    page=page, 
+    username=username,
+    ref=lc_type)
 
 # this function currently generates (x,y) in England
 def random_xy_generator():

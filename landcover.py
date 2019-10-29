@@ -10,6 +10,8 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+# from models import Record
+
 from config import Config
 
 from flask_wtf import FlaskForm
@@ -24,6 +26,18 @@ Bootstrap(app)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+class Record(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), index=True)
+    x = db.Column(db.Float)
+    y = db.Column(db.Float)
+    answer = db.Column(db.Integer)
+    ref_modis_answer = db.Column(db.Integer)
+
+    def __repr__(self):
+        return '<record {}>: name {}, xy({}, {}), answer {}, ref_modis_answer {}'.format(
+            self.id, self.username, self.x, self.y, self.answer, self.ref_modis_answer)
 
 # PP token
 pptoken = app.config['PPTOKEN']
@@ -270,15 +284,25 @@ class YourName(FlaskForm):
 @app.route('/guess-game', methods=['GET','POST'])
 def guess_game():
     form = YourName()
-    if request.method == 'POST' and form.validate_on_submit():
-        # return redirect(url_for('random_guess'))
-        return "HIthere"
+    # if request.method == 'POST' and form.validate_on_submit():
+    # if request.method == 'POST' and form.validate():
+    if request.method == 'POST':
+        return redirect(url_for('random_guess', name=form.name.data))
+        # return "HIthere"
     return render_template('guess_game.html', form=form)
 
 @app.route('/random-guess')
 def random_guess():
+    # get page number
+    page = request.args.get('page') or 1
+    page = int(page)
+
+    if page > 10:
+        return redirect(url_for('index'))
+
     # random geojson
-    random_geojson = geojson_generator(random_xy_generator())
+    x, y = random_xy_generator()
+    random_geojson = geojson_generator((x,y))
 
     # call api
     url = 'http://localhost:5000/api/stats'
@@ -288,8 +312,31 @@ def random_guess():
     # options
     options = zip(lc1_vlookup['values'], lc1_vlookup['names'])
 
+    # saving result
+    max_amount = max([stat['amount'] for stat in stats])
+
+
+    # get user name
+    username = request.args.get('username') or 'anonymous'
+
+    # no stats skip
+    if not stats:
+        pass
+
+    else:
+        for stat in stats:
+            if stat['amount'] == max_amount:
+                lc_type = stat['lc_type']
+    
+        record = Record(username=username, x=x, y=y, answer=request.args.get('landcover'), ref_modis_answer=lc_type)
+        db.session.add(record)
+        db.session.commit()
+
+        # increment
+        page += 1
+
     # renders
-    return render_template('random.html', geojson=json.dumps(random_geojson), stats=stats, options=options)
+    return render_template('random.html', geojson=json.dumps(random_geojson), stats=stats, options=options, page=page, username=username)
 
 
 # this function currently generates (x,y) in England

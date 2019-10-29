@@ -36,7 +36,7 @@ class Record(db.Model):
     ref_modis_answer = db.Column(db.Integer)
 
     def __repr__(self):
-        return '<record {}>: name {}, xy({}, {}), answer {}, ref_modis_answer {}'.format(
+        return '<record {}>: username {}, x {}, y {}, answer {}, ref_modis_answer {}'.format(
             self.id, self.username, self.x, self.y, self.answer, self.ref_modis_answer)
 
 # PP token
@@ -315,14 +315,11 @@ def random_guess():
 
         if page > 10:
             # complete
-            return redirect(url_for('index'))
+            return redirect(url_for('scoreboard', username=username))
     # get
     else:
         page = 1
     
-    # if page > 10:
-    #     return redirect(url_for('index'))
-
     # random geojson
     x, y = random_xy_generator()
     random_geojson = geojson_generator((x,y))
@@ -390,6 +387,19 @@ def geojson_generator(pt, offset=0.001):
 
     # dictionary output, needs `json.dumps() to convert to string for viewing`
     return poly
+
+# to calculate stats
+@app.route('/scoreboard', methods=['GET'])
+def scoreboard():
+    username = request.args.get('username')
+
+    total_num_user = len(db.session.query(db.func.count('*'), Record.username).group_by(Record.username).all())
+
+    correct_num_guess = db.session.query(db.func.count('*'), Record.username).group_by(Record.username).filter(Record.answer==Record.ref_modis_answer, Record.username==username).scalar()
+    total_num_guess = db.session.query(db.func.count('*'), Record.username).group_by(Record.username).filter(Record.username=='aa').scalar()
+    success_rate = correct_num_guess*1.0/total_num_guess
+
+    return str((correct_num_guess, total_num_guess, success_rate))
 
 # DEMO 4: land cover image for up uploaded geometry
 def land_cover_image():

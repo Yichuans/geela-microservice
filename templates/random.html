@@ -66,7 +66,7 @@
         };
 
         var mymap = L.map('mapid', {
-			    layers: [geojson, OpenStreetMap_Mapnik] // only add one!
+			    layers: [geojson, Esri_WorldImagery] // only add one!
 		    });
 
         mymap.fitBounds(geojson.getBounds());

@@ -1,0 +1,36 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Land cover micro API{% endblock %}
+<meta charset="utf-8"/>
+{% block head %}
+{{super()}}
+
+{% endblock %}
+
+{% block navbar %}
+<div class="navbar">
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <h1>Scoreboard</h1>
+
+  <h2>{{username}}</h2>
+
+  <p>Success rate: {{'{:,.2f}'.format(success_rate *100) }}%</p>
+  <p>Correct guesses: {{correct_num_guess}}</p>
+  <p>Total attempts: {{total_num_guess}}</p>
+
+  <h2>Ladder</h2>
+  <ol>
+    {% for score in scores %}
+    <li><b>{{score[0]}}</b>, success rate {{'{:,.2f}'.format(score[1][2] * 100) }}%, correct guesses {{score[1][1]}}, total attempts {{score[1][0]}}</li>
+    {% endfor %}
+  </ol>
+</div>
+{% endblock %}
+
+
+
+{% block html_attribs %} lang="en"{% endblock %}
+

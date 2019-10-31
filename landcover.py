@@ -391,15 +391,44 @@ def geojson_generator(pt, offset=0.001):
 # to calculate stats
 @app.route('/scoreboard', methods=['GET'])
 def scoreboard():
+
+    # correct_num_guess = db.session.query(db.func.count('*'), Record.username).group_by(Record.username).filter(Record.answer==Record.ref_modis_answer, Record.username==username).scalar()
+    # total_num_guess = db.session.query(db.func.count('*'), Record.username).group_by(Record.username).filter(Record.username==username).scalar()
+    # success_rate = correct_num_guess*1.0/total_num_guess
+
+    # ref performance
+    all_result = db.session.query(db.func.count('*'), Record.username).group_by(Record.username).all()
+    correct_result = db.session.query(db.func.count('*'), Record.username).group_by(Record.username).filter(Record.answer==Record.ref_modis_answer).all()
+
+    all_result = {each[1]:each[0] for each in all_result}
+    correct_result = {each[1]:each[0] for each in correct_result}
+
+    # result
+    performance_dict = {}
+
+    for username in all_result.keys():
+        # dict {username: [all, correct, percentage]}
+        performance_dict[username] = [all_result[username]]
+        
+        if username in correct_result.keys():
+            performance_dict[username].append(correct_result[username])
+            performance_dict[username].append(correct_result[username]*1.0/all_result[username])
+        
+        else:
+            performance_dict[username].append(0)
+            performance_dict[username].append(0)
+
+    # return str(performance_dict)
+    # performance
     username = request.args.get('username')
+    total_num_guess, correct_num_guess, success_rate = performance_dict[username]
 
-    total_num_user = len(db.session.query(db.func.count('*'), Record.username).group_by(Record.username).all())
+    # return str((correct_num_guess, total_num_guess, success_rate))
 
-    correct_num_guess = db.session.query(db.func.count('*'), Record.username).group_by(Record.username).filter(Record.answer==Record.ref_modis_answer, Record.username==username).scalar()
-    total_num_guess = db.session.query(db.func.count('*'), Record.username).group_by(Record.username).filter(Record.username=='aa').scalar()
-    success_rate = correct_num_guess*1.0/total_num_guess
-
-    return str((correct_num_guess, total_num_guess, success_rate))
+    # sort dict by percentage success
+    ref_items = sorted(performance_dict.items(), key=lambda x: x[1][2], reverse=True)
+    return render_template('scoreboard.html', username=username, total_num_guess=total_num_guess, 
+        correct_num_guess=correct_num_guess, success_rate=success_rate, scores=ref_items)
 
 # DEMO 4: land cover image for up uploaded geometry
 def land_cover_image():

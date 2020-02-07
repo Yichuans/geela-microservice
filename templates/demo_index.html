@@ -1,13 +1,18 @@
 {% extends "index.html" %}
 
 {% block content %}
+<div class='container'>
   <h1>Demos</h1>
   <p>A proof-of-concept micro API, implemented with Python, Flask, and the Google Earth Engine for easily retrieving land cover information with a 'cookie-cutter', i.e. a spatially explicit geometry.</p>
   <p>Our idea is to try a different approach towards making knowledge product that is powerful, useful but at the same time, scalable, less need for maintenance and can be re-purposed, built-upon and further integrated into other products. More specifically, this would allow:1) easy engineering of products 2) shifts towards a valued added model, compared to the traditional data reselling model.</p> 
-  <ol>
-      <li><a title='protected areas land cover' href='{{ url_for("get_pa_list") }}'>Land cover for all protected areas</a>:  ft. Protected Planet API</li>
-      <li><a title='arbitary geometry upload' href=''>Land cover of an uploaded geometry </a>(under construction)</li>
-      <li><a title='land cover guess game' href='{{ url_for("guess_game")}}'>Land cover guessing game </a></li>
-      <li><a title='land cover image of arbitary geometry upload' href=''>Land cover image of an uploaded geometry </a>(under construction)</li>
-  </ol>
+
+      <h2><a title='protected areas land cover' href='{{ url_for("get_pa_list") }}'>Land cover for all protected areas</a></h2>
+       <p>Ft. Protected Planet API. This demo shows land cover for each protected areas in the WDPA. The novelty here is that computation comes from the Google Earth Engine and that results are generated on-demand. In other words, there is no need to calculate statistics ahead of time - this is expensive and slow - and there is also no need to update statistics every time the underlying data changes. The decouping of data and methodology ensures either could be swapped flexibly and improved easily.</p>
+      <h2><a title='land cover guess game' href='{{ url_for("guess_game")}}'>Land cover guessing game </a></h2>
+      <p>The guess game is an attempt aimed at testing two things: first, gamification is an interesting way for mainstreaming, and second it can be a clever way to collect user generated data in order to train better models, which in turn results in better utility - all good for a positive self-reinforcing circle!</p>
+      <h2>Land cover image of an uploaded geometry</h2>
+      <h2>Land cover of an uploaded geometry </h2>
+
+
+</div>
 {% endblock %}

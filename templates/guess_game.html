@@ -13,7 +13,8 @@
 
 {% block content %}
 <div class="container-fluid">
-  <h1>Guessing land cover</h1>
+  <h1>Guessing land cover in the UK</h1>
+  <p>Type in your name and see how you compare to others when you finish the game</p>
   <form method='POST' action="">
     {{ form.name.label }} {{form.name(size=30)}}
     <input type="submit" value="start">

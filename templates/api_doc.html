@@ -1,0 +1,20 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class='container'>
+  <h1>API document</h1>
+
+<h2>/api</h2>
+<p>Accepts a GET request and checks the health of the API</p>
+<p><a title='status of API' href='/api'>/api</a></p>
+
+<h2>/api/metadata</h2>
+Accepts a GET request and returns the metadata of the underlying MODIS dataset
+<p><a title='status of API' href='/api/metadata'>/api/metadata</a></p>
+
+<h2>/api/stats</h2>
+<p>Accepts a POST request, with a valid geometry in geojson format in its body. A valid request body may look like:</p>
+{"geometry": {"type": "MultiPolygon", "coordinates": ..., }, "properties":{"marker-color":...}}
+
+</div>
+{% endblock %}

@@ -3,22 +3,27 @@
 <meta charset="utf-8"/>
 {% block head %}
 {{super()}}
-
 {% endblock %}
+
 
 {% block navbar %}
 <div class="navbar">
 </div>
 {% endblock %}
 
+
+
 {% block content %}
-<div class="container-fluid">
-  <h1>Welcome to Google Earth Engine Land cover micro API</h1>
+
+<div class="container">
+  <h1>Welcome to Land cover micro API</h1>
+  <p>powered by Google Earth Engine</p>
   <ul>
-    <li><a title='api page' href=''>API page</a></li>
+    <li><a title='api page' href='{{ url_for("api_doc") }}'>API page</a></li>
     <li><a title='demo page' href=' {{ url_for("demo_index")}}'>demo</a></li>
   </ul>
 </div>
+
 {% endblock %}
 
 

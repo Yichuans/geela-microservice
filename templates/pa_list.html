@@ -1,6 +1,7 @@
 {% extends "index.html" %}
 
 {% block content %}
+<div class='container'>
 <h2>Protected areas list</h2>
 
 {% if last_page %}
@@ -18,4 +19,6 @@
 <a title='last page' href="{{ url_for('get_pa_list', page=last_page)}}">last page</a>
 {% endif %}
 <a title='next page' href="{{ url_for('get_pa_list', page=next_page)}}">next page</a>
+
+</div>
 {% endblock %}

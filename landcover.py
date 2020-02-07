@@ -216,6 +216,10 @@ def index():
 def demo_index():
     return render_template('demo_index.html')
 
+@app.route('/api_doc')
+def api_doc():
+    return render_template('api_doc.html')
+
 @app.route('/pa')
 # === DEMO 1: land cover from all PAs from PPNET ===
 def get_pa_list():

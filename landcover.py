@@ -92,6 +92,7 @@ def ppapi_pa_list_url(token, page=1, per_page=50):
     )
     return url
 
+# appear to result in HTTP error
 # load url and get wdpa data PPPI
 def get_ppapi_json(url):
 
@@ -103,19 +104,36 @@ def get_ppapi_json(url):
         response = urllib.urlopen(url, context=gcontext)
         result_dict = json.loads(response.read())
         # result_dict as a python dictionary
-        return result_dict
+        return ('Okay', result_dict)
 
     # AP: need to cath exact exception
-    except:
-        return
+    except Exception as err:
+        return ('Error', err)
+
+# use requests
+def get_ppapi_json2(url):
+    try:
+        response = requests.get(url)
+        result_dict = json.loads(response.text)
+        # result_dict as a python dictionary
+        return ('Okay', result_dict)
+
+    # AP: need to cath exact exception
+    except Exception as err:
+        return ('Error', err)
+
+
 
 # wrapper if only geometry in geojson
 def get_pa_json(wdpaid, token):
     url = ppapi_geom_url(wdpaid, token)
-    data = get_ppapi_json(url)
+    data = get_ppapi_json2(url)
+    if data[0] == 'Okay':
+        data = data[1]
     
-    if not data:
-        return
+    else:
+        # error
+        return data[1]
 
     if 'protected_area' not in data.keys():
         raise Exception('no protected area in json')
@@ -238,15 +256,20 @@ def get_pa_list():
     last_page = page - 1
 
     # get list
-    result = get_ppapi_json(url)
+    result = get_ppapi_json2(url)
 
     # if exist 
-    if result and 'protected_areas' in result.keys():
-        return render_template('pa_list.html', pas=result['protected_areas'], 
-        next_page=next_page, last_page=last_page)
+    if result[0]=='Okay':
+        if 'protected_areas' in result[1].keys():
+            return render_template('pa_list.html', pas=result[1]['protected_areas'],
+            next_page=next_page, last_page=last_page)
+        else:
+            return 'No protected_areas in keys'
+    else:
+        # error message in result[1]
+        return url
+        return str(result[1])
     
-    return None
-    # return str(url)
 
 @app.route('/pa/<wdpaid>')
 def protected_area(wdpaid):
